@@ -35,13 +35,13 @@
 
    ;;; ---> Choose (uncomment) a supported web server and adapter <---
 
-   [org.httpkit.server :as http-kit]
-   [taoensso.sente.server-adapters.http-kit :refer (sente-web-server-adapter)]
+   ;; [org.httpkit.server :as http-kit]
+   ;; [taoensso.sente.server-adapters.http-kit :refer (sente-web-server-adapter)]
 
    ;; or
 
-   ;; [immutant.web    :as immutant]
-   ;; [taoensso.sente.server-adapters.immutant :refer (sente-web-server-adapter)]
+   [immutant.web    :as immutant]
+   [taoensso.sente.server-adapters.immutant :refer (sente-web-server-adapter)]
 
    ;; Optional, for Transit encoding:
    [taoensso.sente.packers.transit :as sente-transit])
@@ -66,22 +66,22 @@
 ;;;; ---> Choose (uncomment) a supported web server and adapter <---
 
 ;;; http-kit
-#+clj
-(defn start-web-server!* [ring-handler port]
-  (println "Starting http-kit...")
-  (let [http-kit-stop-fn (http-kit/run-server ring-handler {:port port})]
-    {:server  nil ; http-kit doesn't expose this
-     :port    (:local-port (meta http-kit-stop-fn))
-     :stop-fn (fn [] (http-kit-stop-fn :timeout 100))}))
-
-;;; Immutant
 ;; #+clj
 ;; (defn start-web-server!* [ring-handler port]
-;;   (println "Starting Immutant...")
-;;   (let [server (immutant/run ring-handler :port port)]
-;;     {:server  server
-;;      :port    (:port server)
-;;      :stop-fn (fn [] (immutant/stop server))}))
+;;   (println "Starting http-kit...")
+;;   (let [http-kit-stop-fn (http-kit/run-server ring-handler {:port port})]
+;;     {:server  nil ; http-kit doesn't expose this
+;;      :port    (:local-port (meta http-kit-stop-fn))
+;;      :stop-fn (fn [] (http-kit-stop-fn :timeout 100))}))
+
+;; Immutant
+#+clj
+(defn start-web-server!* [ring-handler port]
+  (println "Starting Immutant...")
+  (let [server (immutant/run ring-handler :port port)]
+    {:server  server
+     :port    (:port server)
+     :stop-fn (fn [] (immutant/stop server))}))
 
 ;;;; Packer (client<->server serializtion format) config
 
@@ -161,7 +161,7 @@
 
 #+cljs (debugf "ClojureScript appears to have loaded correctly.")
 #+cljs
-(let [rand-chsk-type (if (>= (rand) 0.5) :ajax :auto)
+(let [rand-chsk-type :ajax
 
       {:keys [chsk ch-recv send-fn state]}
       (sente/make-channel-socket! "/chsk" ; Note the same URL as before
@@ -326,7 +326,7 @@
 (defn start! []
   (start-router!)
   #+clj (start-web-server!)
-  #+clj (start-broadcaster!))
+  )
 
 #+clj (defn -main [] (start!)) ; For `lein run`, etc.
 
